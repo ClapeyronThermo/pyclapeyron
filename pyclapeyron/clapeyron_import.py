@@ -10,13 +10,13 @@ def create_wrapper(julia_func):
     def wrapper(*args, **kwargs):
         # Check for Python lists in args
         for i, arg in enumerate(args):
-            if isinstance(arg, list):
-                raise TypeError(f"Argument {i+1}: arrays must be passed as numpy arrays")
+            if isinstance(arg, list) and not all(isinstance(x, str) for x in arg):
+                raise TypeError(f"Argument {i+1} ({arg}): arrays must be passed as numpy arrays")
         
         # Check for Python lists in kwargs
         for key, value in kwargs.items():
-            if isinstance(value, list):
-                raise TypeError(f"Keyword argument '{key}': arrays must be passed as numpy arrays")
+            if isinstance(value, list) and not all(isinstance(x, str) for x in value):
+                raise TypeError(f"Keyword argument '{key}' ({arg}): arrays must be passed as numpy arrays")
         
         result_from_julia = julia_func(*args, **kwargs)
 
