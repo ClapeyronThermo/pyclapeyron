@@ -31,3 +31,4 @@ dist
 .venv
 *egg-info
 __pycache__
+scripts_local
