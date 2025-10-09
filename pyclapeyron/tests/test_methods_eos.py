@@ -168,12 +168,10 @@ def test_RK_singlecomp():
     p2 = 1e5
     T = 250.15
     # @testset "Bulk properties" begin
-    #Check that we actually dispatch to volume_impl, if they vary by anything, we are using the default volume solver
-    assert cl.volume(system, p, T) == cl.volume_impl(system, p, T)
-    assert cl.volume_impl(system, p, T) == approx(6.819297582048736e-5, rel=1e-6)
-    assert cl.volume_impl(system, p2, T) == approx(0.020539807199804024, rel=1e-6)
-    assert cl.volume_impl(system, p2, T, np.array([1.0]), "vapour") == approx(0.020539807199804024, rel=1e-6)
-    assert cl.volume_impl(system, p2, T, np.array([1.0]), "liquid") == approx(7.563111462588624e-5, rel=1e-6)
+    assert cl.volume(system, p, T) == approx(6.819297582048736e-5, rel=1e-6)
+    assert cl.volume(system, p2, T) == approx(0.020539807199804024, rel=1e-6)
+    assert cl.volume(system, p2, T, np.array([1.0]), "vapour") == approx(0.020539807199804024, rel=1e-6)
+    assert cl.volume(system, p2, T, np.array([1.0]), "liquid") == approx(7.563111462588624e-5, rel=1e-6)
     assert cl.speed_of_sound(system, p, T) == approx(800.288303407983, rel=1e-6)
     
     # @testset "VLE properties" begin
