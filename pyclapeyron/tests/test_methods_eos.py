@@ -81,7 +81,7 @@ def test_CPA_singlecomp():
 
 # @testset "SAFT-γ Mie methods, single components" begin
 def test_SAFTgammaMie_singlecomp():
-    system = cl.SAFTγMie(["ethanol"])
+    system = cl.SAFTgammaMie(["ethanol"])
     p = 1e5
     T = 298.15
     # @testset "Bulk properties" begin
