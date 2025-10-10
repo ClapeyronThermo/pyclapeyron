@@ -1,49 +1,43 @@
 import numpy as np
 import juliacall
 jl = juliacall.Main
+from .utils import create_wrapper
 
 jl.seval("using Clapeyron")
-cl_exports = [str(n) for n in jl.names(jl.Clapeyron) if not str(n).startswith('@')]
-
-def create_wrapper(julia_func):
-
-    def wrapper(*args, **kwargs):
-        # Check for Python lists in args
-        for i, arg in enumerate(args):
-            if isinstance(arg, list) and not all(isinstance(x, str) for x in arg):
-                raise TypeError(f"Argument {i+1} ({arg}): arrays must be passed as numpy arrays")
-        
-        # Check for Python lists in kwargs
-        for key, value in kwargs.items():
-            if isinstance(value, list) and not all(isinstance(x, str) for x in value):
-                raise TypeError(f"Keyword argument '{key}' ({arg}): arrays must be passed as numpy arrays")
-        
-        result_from_julia = julia_func(*args, **kwargs)
-
-        if isinstance(result_from_julia, tuple):
-            processed_results = []
-            for item in result_from_julia:
-                if isinstance(item, juliacall.ArrayValue):
-                    processed_results.append(np.asarray(item))
-                else:
-                    processed_results.append(item)
-            return tuple(processed_results)
-        elif isinstance(result_from_julia, juliacall.ArrayValue):
-            return np.asarray(result_from_julia)
-        else:
-            return result_from_julia
-
-    # Set name and docs
-    wrapper.__name__ = julia_func.__name__.replace('!','_b')
-    wrapper.__doc__ = f"Python wrapper for Julia's `{wrapper.__name__}` function."
-    
-    return wrapper
 
 module_globals = globals()
 
-for func_name in cl_exports:
-    func = getattr(jl.Clapeyron, func_name)
-    python_wrapper = create_wrapper(func)
+# main exports
+cl_exports = [str(n) for n in jl.names(jl.Clapeyron) if not str(n).startswith('@')]
+
+for cl_name in cl_exports:
+    cl_obj = getattr(jl.Clapeyron, cl_name)
+    if jl.isa(cl_obj, jl.Function):
+        python_wrapper = create_wrapper(cl_obj)
+        module_globals[python_wrapper.__name__] = python_wrapper
+    else:
+        module_globals[cl_obj.__name__] = cl_obj
+
+# submodules
+class _SubModule:
+    """Container for Clapeyron submodule functions"""
+    pass
+
+for submod in ['VT','PT','PH','PS','QT','QP','TS']:
+    # Create a new submodule instance
+    submodule_obj = _SubModule()
+    submodule_obj.__name__ = submod
     
-    # Add to module globals
-    module_globals[python_wrapper.__name__] = python_wrapper
+    # Get Julia submodule
+    jl_submod = getattr(jl.Clapeyron, submod)
+    cl_names = jl.names(jl_submod, all=True)
+    
+    for _name in cl_names:
+        name = str(_name)
+        if not name.startswith('#'):
+            cl_obj = getattr(jl_submod, name)
+            python_wrapper = create_wrapper(cl_obj)
+            setattr(submodule_obj, python_wrapper.__name__, python_wrapper)
+    
+    # Add the submodule to module globals
+    module_globals[submod] = submodule_obj
