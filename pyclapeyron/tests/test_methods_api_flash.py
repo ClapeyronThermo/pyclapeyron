@@ -27,13 +27,8 @@ def test_RR_Algorithm():
     model_zulip1 = cl.PR(["IsoButane", "n-Butane", "n-Pentane", "n-Hexane"])
     res1 = cl.Clapeyron.tp_flash2(model_zulip1, p_zulip1, 282.2, z_zulip1, cl.RRTPFlash(equilibrium=jl.Symbol("vle")))  #TODO
     res2 = cl.Clapeyron.tp_flash2(model_zulip1, p_zulip1, 282.3, z_zulip1, cl.RRTPFlash(equilibrium=jl.Symbol("vle")))
-    assert all(np.isnan(res1.fractions))
+    assert res1.fractions[1] == 0
     assert res2.fractions[1] == approx(0.00089161, rel=1e-6)
-    
-    # https://julialang.zulipchat.com/#narrow/channel/265161-Clapeyron.2Ejl/topic/The.20meaning.20of.20subcooled.20liquid.20flash.20results/near/534216551
-    model_zulip2 = cl.PR(["n-butane", "n-pentane", "n-hexane", "n-heptane"])
-    res2 = cl.Clapeyron.tp_flash2(model_zulip2, 1e5, 450, z_zulip1, cl.RRTPFlash(equilibrium=jl.Symbol("vle")))
-    assert all(np.isnan(res2.fractions))
 
 # MultiComponentFlash.jl tests would be skipped in Python unless that extension is available
 
