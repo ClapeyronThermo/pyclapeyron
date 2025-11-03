@@ -44,22 +44,3 @@ for submod in ['VT','PT','PH','PS','QT','QP','TS']:
     
     # Add the submodule to module globals
     module_globals[submod] = submodule_obj
-
-# PyObject dispatches (#TODO move to an extension?)
-# format_gccomponents
-jl.seval('''
-Clapeyron.format_gccomponents(x::PyList) = begin
-    return [
-        (xi isa Tuple) ? Tuple([
-            (xj isa PyDict) ? [k => v  for (k,v) in xj] : 
-            (xj isa String) ? xj : error("what to do whith xj type `$(typeof(xj))`")
-        for xj in xi]) : xi
-    for xi in x]
-end
-''')
-# colnames
-jl.seval('''
-Clapeyron.colnames(x::PyDict) = begin 
-    return keys(x)
-end
-''')
