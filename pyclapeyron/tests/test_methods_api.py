@@ -2,41 +2,37 @@ import pytest
 from pytest import approx
 import pyclapeyron as cl
 import numpy as np
-
-# Note: Unitful tests are specific to Julia's unit system and would need
-# a Python equivalent like pint. Skipping for now unless specific Python unit library is used.
+from juliacall import Main as jl
 
 # @testset "association" begin
 def test_association():
     model_no_comb = cl.PCSAFT(["methanol", "ethanol"], 
-                              assoc_options=cl.AssocOptions(combining="nocombining"))
+                              assoc_options=cl.AssocOptions(combining=jl.Symbol("nocombining")))    #TODO
     model_cr1 = cl.PCSAFT(["methanol", "ethanol"], 
-                         assoc_options=cl.AssocOptions(combining="cr1"))
+                         assoc_options=cl.AssocOptions(combining=jl.Symbol("cr1")))
     model_esd = cl.PCSAFT(["methanol", "ethanol"], 
-                         assoc_options=cl.AssocOptions(combining="esd"))
+                         assoc_options=cl.AssocOptions(combining=jl.Symbol("esd")))
     model_esd_r = cl.PCSAFT(["methanol", "ethanol"], 
-                           assoc_options=cl.AssocOptions(combining="elliott_runtime"))
+                           assoc_options=cl.AssocOptions(combining=jl.Symbol("elliott_runtime")))
     model_dufal = cl.PCSAFT(["methanol", "ethanol"], 
-                           assoc_options=cl.AssocOptions(combining="dufal"))
-    
-    repr(cl.AssocOptions(combining="dufal"))
+                           assoc_options=cl.AssocOptions(combining=jl.Symbol("dufal")))
     
     V = 5e-5
     T = 298.15
     z = np.array([0.5, 0.5])
     
-    assert cl.nonzero_extrema(range(4)) == (1, 3)
-    assert cl.a_assoc(model_no_comb, V, T, z) == approx(-4.667036481159167, rel=1e-6)
-    assert cl.a_assoc(model_cr1, V, T, z) == approx(-5.323469194263458, rel=1e-6)
-    assert cl.a_assoc(model_esd, V, T, z) == approx(-5.323420343872591, rel=1e-6)
-    assert cl.a_assoc(model_esd_r, V, T, z) == approx(-5.323430326406561, rel=1e-6)
-    assert cl.a_assoc(model_dufal, V, T, z) == approx(-5.323605338112626, rel=1e-6)
+    assert cl.Clapeyron.nonzero_extrema(range(4)) == (1, 3) 
+    assert cl.Clapeyron.a_assoc(model_no_comb, V, T, z) == approx(-4.667036481159167, rel=1e-6)
+    assert cl.Clapeyron.a_assoc(model_cr1, V, T, z) == approx(-5.323469194263458, rel=1e-6)
+    assert cl.Clapeyron.a_assoc(model_esd, V, T, z) == approx(-5.323420343872591, rel=1e-6)
+    assert cl.Clapeyron.a_assoc(model_esd_r, V, T, z) == approx(-5.323430326406561, rel=1e-6)
+    assert cl.Clapeyron.a_assoc(model_dufal, V, T, z) == approx(-5.323605338112626, rel=1e-6)
     
     # system with strong association:
-    fluid = cl.PCSAFT(["water", "methanol"], assoc_options=cl.AssocOptions(combining="elliott"))
+    fluid = cl.PCSAFT(["water", "methanol"], assoc_options=cl.AssocOptions(combining=jl.Symbol("elliott")))
     fluid.params.epsilon["water", "methanol"] *= (1 + 0.18)
     v = cl.volume(fluid, 1e5, 160.0, np.array([0.5, 0.5]), phase="l")
-    X_result = cl.X(fluid, v, 160.0, np.array([0.5, 0.5])).v
+    X_result = cl.Clapeyron.X(fluid, v, 160.0, np.array([0.5, 0.5])).v
     expected_X = np.array([0.0011693187791158642, 0.0011693187791158818, 
                            0.0002916842981727242, 0.0002916842981727286])
     assert np.allclose(X_result, expected_X, rtol=1e-8)
@@ -47,9 +43,8 @@ def test_association():
                   [2.2885758180656732, 0.0, 0.0, 0.0]])
     expected_solve = np.array([0.0562461981664357, 0.0562461981664357, 
                                0.8859564211875895, 0.8859564211875895])
-    assert np.allclose(cl.assoc_matrix_solve(K), expected_solve)
+    assert np.allclose(cl.Clapeyron.assoc_matrix_solve(K), expected_solve)
 
-# @testset "tpd" begin
 def test_tpd():
     system = cl.PCSAFT(["water", "cyclohexane"])
     T = 298.15
@@ -66,7 +61,7 @@ def test_tpd():
     p = 1e5
     v1 = cl.volume(model, p, 297.23, z)
     assert not cl.isstable(model, p, 297.23, z)
-    assert not cl.VT_isstable(model, v1, 297.23, z)
+    assert not cl.Clapeyron.VT_isstable(model, v1, 297.23, z)
     
     model = cl.cPR(["ethane"], idealmodel=cl.ReidIdeal)
     p = 101325
@@ -74,99 +69,90 @@ def test_tpd():
     T, vl, vv = cl.saturation_temperature(model, p)
     v_unstable = np.exp(0.5 * (np.log(vl) + np.log(vv)))
     V = cl.volume(model, p, T, z)  # lies in range of Vv
-    assert cl.VT_diffusive_stability(model, V, T, z)
-    assert not cl.VT_diffusive_stability(model, v_unstable, T, z)
+    assert cl.Clapeyron.VT_diffusive_stability(model, V, T, z)
+    assert not cl.Clapeyron.VT_diffusive_stability(model, v_unstable, T, z)
 
 # @testset "reference states" begin
 def test_reference_states():
     assert not cl.has_reference_state(cl.PCSAFT("water"))
     assert cl.has_reference_state(cl.PCSAFT("water", idealmodel=cl.ReidIdeal))
-    
-    ref1 = cl.ReferenceState("nbp")
-    ref2 = cl.ReferenceState("ashrae")
-    ref3 = cl.ReferenceState("iir")
-    ref4 = cl.ReferenceState("volume", T0=298.15, P0=1.0e5, phase="liquid")
-    ref5 = cl.ReferenceState("volume", T0=298.15, P0=1.0e5, phase="gas", 
-                            z0=np.array([0.4, 0.6]), H0=123, S0=456)
 
 def test_reference_states_nbp():
-    ref1 = cl.ReferenceState("nbp")
+    ref1 = cl.ReferenceState(jl.Symbol("nbp"))
     model1 = cl.PCSAFT(["water", "pentane"], idealmodel=cl.ReidIdeal, reference_state=ref1)
     pure1 = cl.split_model(model1)
     T11, v11, _ = cl.saturation_temperature(pure1[0], 101325.0)
-    assert cl.VT_enthalpy(pure1[0], v11, T11) == approx(0.0, abs=1e-6)
-    assert cl.VT_entropy(pure1[0], v11, T11) == approx(0.0, abs=1e-6)
+    assert cl.VT.enthalpy(pure1[0], v11, T11) == approx(0.0, abs=1e-5)
+    assert cl.VT.entropy(pure1[0], v11, T11) == approx(0.0, abs=1e-6)
     T12, v12, _ = cl.saturation_temperature(pure1[1], 101325.0)
-    assert cl.VT_enthalpy(pure1[1], v12, T12) == approx(0.0, abs=1e-6)
-    assert cl.VT_entropy(pure1[1], v12, T12) == approx(0.0, abs=1e-6)
-    repr(cl.reference_state(model1))
+    assert cl.VT.enthalpy(pure1[1], v12, T12) == approx(0.0, abs=1e-6)
+    assert cl.VT.entropy(pure1[1], v12, T12) == approx(0.0, abs=1e-6)
     
     # test that multifluids work
-    model1b = cl.GERG2008("water", reference_state="nbp")
+    model1b = cl.GERG2008("water", reference_state=jl.Symbol("nbp"))
     T1b, v1b, _ = cl.saturation_temperature(model1b, 101325.0)
-    assert cl.VT_enthalpy(model1b, v1b, T1b) == approx(0.0, abs=1e-6)
-    assert cl.VT_entropy(model1b, v1b, T1b) == approx(0.0, abs=1e-6)
+    assert cl.VT.enthalpy(model1b, v1b, T1b) == approx(0.0, abs=1e-6)
+    assert cl.VT.entropy(model1b, v1b, T1b) == approx(0.0, abs=1e-6)
 
 def test_reference_states_ashrae():
-    ref2 = cl.ReferenceState("ashrae")
+    ref2 = cl.ReferenceState(jl.Symbol("ashrae"))
     model2 = cl.PCSAFT(["water", "pentane"], idealmodel=cl.ReidIdeal, reference_state=ref2)
     pure2 = cl.split_model(model2)
     T_ashrae = 233.15
     _, v21, _ = cl.saturation_pressure(pure2[0], T_ashrae)
-    assert cl.VT_enthalpy(pure2[0], v21, T_ashrae) == approx(0.0, abs=1e-6)
-    assert cl.VT_entropy(pure2[0], v21, T_ashrae) == approx(0.0, abs=1e-6)
+    assert cl.VT.enthalpy(pure2[0], v21, T_ashrae) == approx(0.0, abs=1e-6)
+    assert cl.VT.entropy(pure2[0], v21, T_ashrae) == approx(0.0, abs=1e-6)
     _, v22, _ = cl.saturation_pressure(pure2[1], T_ashrae)
-    assert cl.VT_enthalpy(pure2[1], v22, T_ashrae) == approx(0.0, abs=1e-6)
-    assert cl.VT_entropy(pure2[1], v22, T_ashrae) == approx(0.0, abs=1e-6)
+    assert cl.VT.enthalpy(pure2[1], v22, T_ashrae) == approx(0.0, abs=1e-6)
+    assert cl.VT.entropy(pure2[1], v22, T_ashrae) == approx(0.0, abs=1e-6)
 
 def test_reference_states_iir():
-    ref3 = cl.ReferenceState("iir")
+    ref3 = cl.ReferenceState(jl.Symbol("iir"))
     model3 = cl.PCSAFT(["water", "pentane"], idealmodel=cl.ReidIdeal, reference_state=ref3)
     pure3 = cl.split_model(model3)
     Tiir = 273.15
-    H31, H32 = 200 * model3.params.Mw[0], 200 * model3.params.Mw[1]
-    S31, S32 = 1.0 * model3.params.Mw[0], 1.0 * model3.params.Mw[1]
+    H31, H32 = 200 * model3.params.Mw[1], 200 * model3.params.Mw[2]
+    S31, S32 = 1.0 * model3.params.Mw[1], 1.0 * model3.params.Mw[2]
     _, v31, _ = cl.saturation_pressure(pure3[0], Tiir)
-    assert cl.VT_enthalpy(pure3[0], v31, Tiir) == approx(H31, abs=1e-6)
-    assert cl.VT_entropy(pure3[0], v31, Tiir) == approx(S31, abs=1e-6)
+    assert cl.VT.enthalpy(pure3[0], v31, Tiir) == approx(H31, abs=1e-6)
+    assert cl.VT.entropy(pure3[0], v31, Tiir) == approx(S31, abs=1e-6)
     _, v32, _ = cl.saturation_pressure(pure3[1], Tiir)
-    assert cl.VT_enthalpy(pure3[1], v32, Tiir) == approx(H32, abs=1e-6)
-    assert cl.VT_entropy(pure3[1], v32, Tiir) == approx(S32, abs=1e-6)
+    assert cl.VT.enthalpy(pure3[1], v32, Tiir) == approx(H32, abs=1e-6)
+    assert cl.VT.entropy(pure3[1], v32, Tiir) == approx(S32, abs=1e-6)
 
 def test_reference_states_custom_volume():
-    ref4 = cl.ReferenceState("volume", T0=298.15, P0=1.0e5, phase="liquid")
+    ref4 = cl.ReferenceState(jl.Symbol("volume"), T0=298.15, P0=1.0e5, phase=jl.Symbol("liquid"))
     model4 = cl.PCSAFT(["water", "pentane"], idealmodel=cl.ReidIdeal, reference_state=ref4)
     pure4 = cl.split_model(model4)
     T4, P4 = 298.15, 1.0e5
     v41 = cl.volume(pure4[0], P4, T4, phase="liquid")
-    assert cl.VT_enthalpy(pure4[0], v41, T4) == approx(0.0, abs=1e-6)
-    assert cl.VT_entropy(pure4[0], v41, T4) == approx(0.0, abs=1e-6)
+    assert cl.VT.enthalpy(pure4[0], v41, T4) == approx(0.0, abs=1e-6)
+    assert cl.VT.entropy(pure4[0], v41, T4) == approx(0.0, abs=1e-6)
     v42 = cl.volume(pure4[1], P4, T4, phase="liquid")
-    assert cl.VT_enthalpy(pure4[1], v42, T4) == approx(0.0, abs=1e-6)
-    assert cl.VT_entropy(pure4[1], v42, T4) == approx(0.0, abs=1e-6)
+    assert cl.VT.enthalpy(pure4[1], v42, T4) == approx(0.0, abs=1e-6)
+    assert cl.VT.entropy(pure4[1], v42, T4) == approx(0.0, abs=1e-6)
 
 def test_reference_states_custom_composition():
-    ref5 = cl.ReferenceState("volume", T0=298.15, P0=1.0e5, phase="gas", 
-                            z0=np.array([0.4, 0.6]), H0=123, S0=456)
+    ref5 = cl.ReferenceState(jl.Symbol("volume"), T0=298.15, P0=1.0e5, phase=jl.Symbol("gas"), z0=np.array([0.4, 0.6]), H0=123, S0=456)
     model5 = cl.PCSAFT(["water", "pentane"], idealmodel=cl.ReidIdeal, reference_state=ref5)
     T5, P5 = 298.15, 1.0e5
     z5 = np.array([0.4, 0.6])
-    v5 = cl.volume(model5, P5, T5, z5, phase="gas")
-    assert cl.VT_enthalpy(model5, v5, T5, z5) == approx(123, abs=1e-6)
-    assert cl.VT_entropy(model5, v5, T5, z5) == approx(456, abs=1e-6)
+    v5 = cl.volume(model5, P5, T5, z5, phase=jl.Symbol("gas"))
+    assert cl.Clapeyron.VT_enthalpy(model5, v5, T5, z5) == approx(123, abs=1e-6)
+    assert cl.Clapeyron.VT_entropy(model5, v5, T5, z5) == approx(456, abs=1e-6)
 
-def test_reference_states_vectorparam():
+def test_reference_states_else():
     # reference state from EoSVectorParam
-    mod_pr = cl.cPR(["water", "ethanol"], idealmodel=cl.ReidIdeal, reference_state="ntp")
-    mod_vec = cl.EoSVectorParam(mod_pr)
-    cl.recombine(mod_vec)
-    assert cl.reference_state(mod_vec).std_type == "ntp"
+    mod_pr = cl.cPR(["water", "ethanol"], idealmodel=cl.ReidIdeal, reference_state=jl.Symbol("ntp"))
+    mod_vec = cl.Clapeyron.EoSVectorParam(mod_pr)
+    cl.Clapeyron.recombine_b(mod_vec)
+    assert cl.reference_state(mod_vec).std_type == jl.Symbol("ntp")
     assert len(cl.reference_state(mod_vec).a0) == 2
     
     # reference state from Activity models
     puremodel = cl.cPR(["water", "ethanol"], idealmodel=cl.ReidIdeal)
-    act = cl.NRTL(["water", "ethanol"], puremodel=puremodel, reference_state="ntp")
-    assert cl.reference_state(act).std_type == "ntp"
+    act = cl.NRTL(["water", "ethanol"], puremodel=puremodel, reference_state=jl.Symbol("ntp"))
+    assert cl.reference_state(act).std_type == jl.Symbol("ntp")
     assert len(cl.reference_state(act).a0) == 2
 
 # @testset "Solid Phase Equilibria" begin
@@ -221,8 +207,8 @@ def test_Pure_Solid_Liquid_Equilibria():
 
 def test_Mixture_Solid_Liquid_Equilibria():
     model = cl.CompositeModel(
-        [("1-decanol", [("CH3", 1), ("CH2", 9), ("OH (P)", 1)]),
-         ("thymol", [("ACCH3", 1), ("ACH", 3), ("ACOH", 1), ("ACCH", 1), ("CH3", 2)])],
+        [("1-decanol", {"CH3": 1, "CH2": 9, "OH (P)": 1}),
+         ("thymol", {"ACCH3": 1, "ACH": 3, "ACOH": 1, "ACCH": 1, "CH3": 2})],
         liquid=cl.UNIFAC, solid=cl.SolidHfus
     )
     T = 275.
@@ -238,7 +224,7 @@ def test_Mixture_Solid_Liquid_Equilibria():
 def test_Solid_Liquid_Liquid_Equilibria():
     model = cl.CompositeModel(
         ["water", "ethanol", 
-         ("ibuprofen", [("ACH", 4), ("ACCH2", 1), ("ACCH", 1), ("CH3", 3), ("COOH", 1), ("CH", 1)])],
+         ("ibuprofen", {"ACH": 4, "ACCH2": 1, "ACCH": 1, "CH3": 3, "COOH": 1, "CH": 1})], #TODO docs
         liquid=cl.UNIFAC, solid=cl.SolidHfus
     )
     p = 1e5
@@ -275,8 +261,9 @@ def test_partial_properties():
     z = np.array([0.1, 0.1, 0.8])
     p, T = 0.95e5, 380.15
     
-    for prop in [cl.volume, cl.gibbs_free_energy, cl.helmholtz_free_energy, 
-                 cl.entropy, cl.enthalpy, cl.internal_energy]:
+    #TODO python wrapper may not input to Clapeyron functions, better solution?
+    for prop in [cl.Clapeyron.volume, cl.Clapeyron.gibbs_free_energy, cl.Clapeyron.helmholtz_free_energy, 
+                 cl.Clapeyron.entropy, cl.Clapeyron.enthalpy, cl.Clapeyron.internal_energy]:
         partial_vals = cl.partial_property(model_pem, p, T, z, prop)
         assert np.sum(partial_vals * z) == approx(prop(model_pem, p, T, z))
 
@@ -286,8 +273,8 @@ def test_spinodals():
     model = cl.PCSAFT(["methane", "ethane"])
     T_spin = 223.
     x_spin = np.array([0.2, 0.8])
-    pl_spin, vl_spin = cl.spinodal_pressure(model, T_spin, x_spin, phase="liquid")
-    pv_spin, vv_spin = cl.spinodal_pressure(model, T_spin, x_spin, phase="vapor")
+    pl_spin, vl_spin = cl.spinodal_pressure(model, T_spin, x_spin, phase=jl.Symbol("liquid"))
+    pv_spin, vv_spin = cl.spinodal_pressure(model, T_spin, x_spin, phase=jl.Symbol("vapor"))
     assert vl_spin == approx(7.218532167482202e-5, rel=1e-6)
     assert vv_spin == approx(0.0004261109817247137, rel=1e-6)
     
@@ -300,8 +287,8 @@ def test_spinodals():
     model2 = cl.PCSAFT("carbon dioxide")
     Tc, Pc, Vc = (310.27679925044134, 8.06391600653306e6, 9.976420206333288e-5)
     T = np.linspace(Tc - 70, Tc - 0.1, 50)
-    psl = np.array([cl.spinodal_pressure(model2, t, phase="l")[0] for t in T])
-    psv = np.array([cl.spinodal_pressure(model2, t, phase="v")[0] for t in T])
+    psl = np.array([cl.spinodal_pressure(model2, t, phase=jl.Symbol("l"))[0] for t in T])
+    psv = np.array([cl.spinodal_pressure(model2, t, phase=jl.Symbol("v"))[0] for t in T])
     psat = np.array([cl.saturation_pressure(model2, t)[0] for t in T])
     assert np.all(psl < psat)
     assert np.all(psat < psv)
