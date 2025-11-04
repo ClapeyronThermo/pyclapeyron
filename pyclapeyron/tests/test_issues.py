@@ -112,7 +112,7 @@ PEG_1sit,"[""CH2_PEO"" => 2000,""cO_1sit"" => 1000,""CH2OH"" => 2]"
 """
     
     model = cl.SAFTgammaMie(["water", "PEG_1sit"], 
-                           userlocations=jl.Array[jl.String]([like_data, assoc_data, mw_data]), #TODO better solution? 
+                           userlocations=jl.Array[jl.String]([like_data, assoc_data, mw_data]),
                            group_userlocations=[group_data])
     # in this case, because the groups are 1 to 1 correspondence to each molecule, 
     # the amount of groups should be the same
@@ -159,7 +159,7 @@ def test_issue_188():
     
     file = cl.ParamTable(jl.Symbol("single"), jl.concretize(data), name="db1")
     
-    system = cl.PR(["A", "B"], userlocations=jl.Array[jl.String]([file])) #TODO
+    system = cl.PR(["A", "B"], userlocations=jl.Array[jl.String]([file]))
     assert system.params.Tc[2] == 3.5
 
 # @testset "#201" begin
@@ -323,7 +323,7 @@ def test_CPA_init():
 # @testset "#357 - electrolyte equilibria" begin
 def test_issue_357_electrolyte_equilibria():
     model1 = cl.ePCSAFT(["water"], ["calcium", "chloride"])
-    salts1 = jl.Array([("calcium chloride", jl.Array([("calcium", 1), ("chloride", 2)]))]) #TODO better solution?
+    salts1 = (("calcium chloride", [("calcium", 1), ("chloride", 2)]),)
     x1 = cl.molality_to_composition(model1, salts1, 1.0)
     bub_test = 374.7581484748338
     bubP1_test = 2971.744917038001
@@ -360,9 +360,6 @@ def test_issue_357_electrolyte_equilibria():
 
 # @testset "416" begin
 def test_issue_416():
-    # if we build a cubic and only provide critical parameters (without acentric factor), 
-    # read the database to build the alpha model 
-    # TODO ugly
     model = cl.PR(["nitrogen"], userlocations={
         "Tc": jl.Array[jl.Float64]([0.3]),
         "Pc": jl.Array[jl.Float64]([1.]),

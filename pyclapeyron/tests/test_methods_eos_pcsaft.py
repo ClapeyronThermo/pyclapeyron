@@ -104,17 +104,6 @@ def test_Equilibrium_properties_multi():
     assert cl.dew_pressure(system, T2, z)[0] == approx(1.6555486543884084e6, rel=1e-6)
     assert cl.dew_temperature(system, p2, z)[0] == approx(453.0056727580934, rel=1e-6)
     
-    # res_LLE_p = cl.LLE_pressure(system, T, z2) #TODO error in Julia too !?
-    # assert res_LLE_p[0] == approx(737971.7522006684, rel=1e-6)
-    # assert cl.pressure(system, res_LLE_p[1], T, z2) == approx(cl.pressure(system, res_LLE_p[2], T, res_LLE_p[-1]), rel=1e-6)
-    # assert cl.pressure(system, res_LLE_p[1], T, z2) == approx(res_LLE_p[0], rel=1e-6)
-    
-    # res_LLE_T = cl.LLE_temperature(system, p, z2) #TODO error in Julia too !?
-    # T_LLE = res_LLE_T[0]
-    # assert res_LLE_T[0] == approx(312.9523684945214, rel=1e-6)
-    # assert cl.pressure(system, res_LLE_T[1], T_LLE, z2) == approx(cl.pressure(system, res_LLE_T[2], T_LLE, res_LLE_T[-1]), rel=1e-6)
-    # assert cl.pressure(system, res_LLE_T[1], T_LLE, z2) == approx(p, rel=1e-6)
-    
     assert cl.azeotrope_pressure(system, T2)[0] == approx(2.4435462800998255e6, rel=1e-6)
     assert cl.azeotrope_temperature(system, p)[0] == approx(328.2431049077264, rel=1e-6)
     assert cl.Clapeyron.UCST_mix(system, T2)[0] == approx(1.0211532467788119e9, rel=1e-6)

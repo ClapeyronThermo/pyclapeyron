@@ -343,7 +343,6 @@ def test_lkp():
     system = cl.LKP(["methane", "butane"])
     assert cl.Clapeyron.a_res(system, Vx, Tx, zx) == approx(-6.469596957611441, rel=5e-6)
     system2 = cl.LKPSJT(["methane", "butane"])
-    # TODO: check this value
     assert cl.Clapeyron.a_res(system2, Vx, Tx, zx) == approx(-5.636923220762173, rel=5e-6)
 
 

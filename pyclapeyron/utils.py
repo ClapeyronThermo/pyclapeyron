@@ -37,6 +37,5 @@ def create_wrapper(julia_func):
     return wrapper
 
 # Helper functions to "concretize" a dict on the Julia side
-#TODO better way? -> see database.jl:718 `... elseif v isa Dict{Tuple{Tuple{String,String},Tuple{String,String}}} ...`
 jl.seval("concretize(d::AbstractDict) = Dict(k => v for (k,v) in d)")
 jl.seval("concretize(d) = d")

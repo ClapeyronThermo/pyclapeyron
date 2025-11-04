@@ -25,7 +25,7 @@ def test_RR_Algorithm():
     z_zulip1 = np.array([0.25, 0.25, 0.25, 0.25])
     p_zulip1 = 1e5
     model_zulip1 = cl.PR(["IsoButane", "n-Butane", "n-Pentane", "n-Hexane"])
-    res1 = cl.Clapeyron.tp_flash2(model_zulip1, p_zulip1, 282.2, z_zulip1, cl.RRTPFlash(equilibrium=jl.Symbol("vle")))  #TODO
+    res1 = cl.Clapeyron.tp_flash2(model_zulip1, p_zulip1, 282.2, z_zulip1, cl.RRTPFlash(equilibrium=jl.Symbol("vle")))
     res2 = cl.Clapeyron.tp_flash2(model_zulip1, p_zulip1, 282.3, z_zulip1, cl.RRTPFlash(equilibrium=jl.Symbol("vle")))
     assert res1.fractions[1] == 0
     assert res2.fractions[1] == approx(0.00089161, rel=1e-6)
@@ -243,7 +243,7 @@ def test_XY_flash():
     z = np.array([1])
     T = cl.PH.temperature(model, p, h, z)
     assert cl.enthalpy(model, p, T, z) == approx(h, rel=1e-6)
-    res5 = cl.Clapeyron.tx_flash_pure(model, T, h, z, cl.Clapeyron.enthalpy) #TODO
+    res5 = cl.Clapeyron.tx_flash_pure(model, T, h, z, cl.Clapeyron.enthalpy)
     assert cl.pressure(res5) == approx(p, rel=1e-6)
     
     # px_flash_pure: two phase (#320)
@@ -371,28 +371,6 @@ def test_XY_flash():
     # 394
     fluid394 = cl.cPR(["R134a"], idealmodel=cl.ReidIdeal)
     h394 = -25000.0
-    # ForwardDiff derivative test would require special implementation in Python
-    
-    # # https://github.com/CoolProp/CoolProp/issues/2622 #TODO how to handle extnsions?
-    # model = cl.SingleFluid("R123")
-    # Mw5 = cl.molecular_weight(model)
-    # h5 = 233250.0
-    # s5 = 1.1049e3
-    # sm5 = s5*Mw5
-    # hm5 = h5*Mw5
-    # p5 = 5e6
-    # T51 = cl.CoolProp.PropsSI("T", "Hmolar", hm5, "P", p5, model)
-    # T52 = cl.CoolProp.PropsSI("T", "H", h5, "P", p5, model)
-    # T53 = cl.CoolProp.PropsSI("T", "Smolar", sm5, "P", p5, model)
-    # T54 = cl.CoolProp.PropsSI("T", "S", s5, "P", p5, model)
-    # assert T51 == T52
-    # assert T53 == T54
-    # assert T53 == approx(304.88, rel=5e-5)
-    # assert T51 == approx(304.53, rel=5e-5)
-    
-    # TUV1 = cl.CoolProp.PropsSI("T", "U", 29550.0, "D", 1000, "water")
-    # TUV2 = cl.CoolProp.PropsSI("T", "U", 29550.0, "D", 1000, cl.IAPWS95())
-    # assert TUV1 == approx(TUV2, rel=1e-6)
 
 # @testset "Saturation Methods" begin
 def test_Saturation_Methods():

@@ -272,7 +272,7 @@ def test_Activity_multicomp():
     com = cl.CompositeModel(["water", "methanol"], liquid=cl.DIPPR105Liquid, saturation=cl.DIPPR101Sat, gas=cl.PR)
     
     system = cl.Wilson(["methanol", "benzene"])
-    comp_system = cl.CompositeModel(["methanol", "benzene"], fluid=cl.PR, liquid=cl.Wilson, reference_state=jl.Symbol("ashrae")) #TODO
+    comp_system = cl.CompositeModel(["methanol", "benzene"], fluid=cl.PR, liquid=cl.Wilson, reference_state=jl.Symbol("ashrae"))
 
     system2 = cl.CompositeModel(["water", "methanol"], liquid=cl.Wilson, fluid=com)
     system3 = cl.CompositeModel(["octane", "heptane"], liquid=cl.UNIFAC, fluid=cl.LeeKeslerSat)

@@ -7,7 +7,7 @@ from juliacall import Main as jl
 # @testset "association" begin
 def test_association():
     model_no_comb = cl.PCSAFT(["methanol", "ethanol"], 
-                              assoc_options=cl.AssocOptions(combining=jl.Symbol("nocombining")))    #TODO
+                              assoc_options=cl.AssocOptions(combining=jl.Symbol("nocombining")))
     model_cr1 = cl.PCSAFT(["methanol", "ethanol"], 
                          assoc_options=cl.AssocOptions(combining=jl.Symbol("cr1")))
     model_esd = cl.PCSAFT(["methanol", "ethanol"], 
@@ -224,20 +224,13 @@ def test_Mixture_Solid_Liquid_Equilibria():
 def test_Solid_Liquid_Liquid_Equilibria():
     model = cl.CompositeModel(
         ["water", "ethanol", 
-         ("ibuprofen", {"ACH": 4, "ACCH2": 1, "ACCH": 1, "CH3": 3, "COOH": 1, "CH": 1})], #TODO docs
+         ("ibuprofen", {"ACH": 4, "ACCH2": 1, "ACCH": 1, "CH3": 3, "COOH": 1, "CH": 1})],
         liquid=cl.UNIFAC, solid=cl.SolidHfus
     )
     p = 1e5
     T = 323.15
     s1, s2 = cl.slle_solubility(model, p, T)
     assert s1[2] == approx(0.0015804179997257882, rel=1e-6)
-
-# @testset "challenging equilibria" begin
-def test_challenging_equilibria_VTPR():
-    # carbon monoxide is supercritical
-    system = cl.VTPR(["carbon monoxide", "carbon dioxide"])
-    # This test is marked as broken in Julia
-    # pytest.skip("Known broken test from Julia version")
 
 def test_saturation_points_without_critical_point():
     model1 = cl.PCSAFT("water")
@@ -261,7 +254,6 @@ def test_partial_properties():
     z = np.array([0.1, 0.1, 0.8])
     p, T = 0.95e5, 380.15
     
-    #TODO python wrapper may not input to Clapeyron functions, better solution?
     for prop in [cl.Clapeyron.volume, cl.Clapeyron.gibbs_free_energy, cl.Clapeyron.helmholtz_free_energy, 
                  cl.Clapeyron.entropy, cl.Clapeyron.enthalpy, cl.Clapeyron.internal_energy]:
         partial_vals = cl.partial_property(model_pem, p, T, z, prop)

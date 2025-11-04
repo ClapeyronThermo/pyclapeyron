@@ -46,7 +46,7 @@ def test_ePCSAFT():
     m = 1
     
     system = cl.ePCSAFT(["water"], ["sodium", "chloride"])
-    salts = (("sodium chloride", [("sodium", 1), ("chloride", 1)]),)  #TODO
+    salts = (("sodium chloride", [("sodium", 1), ("chloride", 1)]),)
     z = cl.molality_to_composition(system, salts, m)
     assert cl.Clapeyron.a_res(system, V, T, z) == approx(-1.0037641675166717, rel=1e-6)
 

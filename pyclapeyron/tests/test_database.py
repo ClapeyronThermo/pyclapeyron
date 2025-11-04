@@ -32,7 +32,7 @@ filepath_param_gc = [csv_path + "/test_csvs/group_param_test.csv"]
 # @testset "getparams - general" begin
 def test_getparams_general():
     opts = cl.ParamOptions()
-    opts2 = cl.ParamOptions(ignore_missing_singleparams=jl.Array[jl.String](["emptyparam","missingparam"])) #TODO this is ugly
+    opts2 = cl.ParamOptions(ignore_missing_singleparams=jl.Array[jl.String](["emptyparam","missingparam"]))
     allparams, allnotfoundparams = cl.Clapeyron.createparams(jl.Array[jl.String](testspecies), jl.Array[jl.String](filepath_normal), opts)
     
     params1 = cl.getparams(["water", "methanol"], jl.Array[jl.String](["SAFT/PCSAFT"]), return_sites=False)
@@ -80,8 +80,8 @@ def test_params_printing():
 
 # @testset "params - types and values" begin
 def test_params_types_and_values():
-    params = cl.getparams(testspecies, userlocations=jl.Array[jl.String](filepath_normal), #TODO
-                         ignore_missing_singleparams=jl.Array[jl.String](["emptyparam","missingparam"]),    #TODO 
+    params = cl.getparams(testspecies, userlocations=jl.Array[jl.String](filepath_normal),
+                         ignore_missing_singleparams=jl.Array[jl.String](["emptyparam","missingparam"]), 
                          verbose=True)
     
     # Check that all the types are correct.
@@ -174,7 +174,7 @@ def test_params_types_and_values():
     assert assoc_param[("sp5","e"),("sp5","e")] == 2200
     
     # Testing for asymmetric params
-    asymmetricparams = cl.getparams(testspecies, userlocations=jl.Array[jl.String](filepath_asymmetry), #TODO
+    asymmetricparams = cl.getparams(testspecies, userlocations=jl.Array[jl.String](filepath_asymmetry),
                                    asymmetricparams=jl.Array[jl.String](["asymmetricpair", "asymmetricassoc"]), 
                                    ignore_missing_singleparams=jl.Array[jl.String](["asymmetricpair"]))
     
@@ -186,7 +186,7 @@ def test_params_types_and_values():
     assert np.allclose(asymmetricparams["asymmetricpair"].values, expected_asym)
     
     # Testing for multiple identifiers
-    multiple_identifiers = cl.getparams(testspecies, userlocations=jl.Array[jl.String](filepath_multiple_identifiers)) #TODO
+    multiple_identifiers = cl.getparams(testspecies, userlocations=jl.Array[jl.String](filepath_multiple_identifiers))
     assert list(multiple_identifiers["param_single"].values) == [100, 200, 200, 300, 300]
     
     expected_pair = np.array([[1000, 4000, 0, 0, 0],
@@ -215,7 +215,7 @@ def test_GroupParam():
     param_gc = cl.getparams(components_gc, userlocations=jl.Array[jl.String](filepath_param_gc))
     assert list(param_gc["param1"].values) == [1, 2, 3, 4]
 
-paramtable_file = cl.ParamTable(jl.Symbol("single"), jl.concretize({"species": ["sp1", "sp2"], "userparam": np.array([2, 10])})) #TODO avoid jl.Symbol?
+paramtable_file = cl.ParamTable(jl.Symbol("single"), jl.concretize({"species": ["sp1", "sp2"], "userparam": np.array([2, 10])})) #TODO not using concretize should error here (or this should be fixed directly in Clapeyron.jl)
 
 # @testset "ParamTable" begin
 def test_ParamTable():
@@ -232,12 +232,10 @@ species,userparam,b,c
 sp1,1000,0.05,4
 sp2,,0.41,5
 """
-    param_user2 = cl.getparams(["sp1", "sp2"], userlocations=jl.Array[jl.String]([csv_string]), #TODO userlocations type
+    param_user2 = cl.getparams(["sp1", "sp2"], userlocations=jl.Array[jl.String]([csv_string]),
                               ignore_missing_singleparams=jl.Array[jl.String](["userparam"]))
     assert param_user2["userparam"].values[0] == 1000
     
-    # @REPLACE keyword
-    # paramtable_file = cl.ParamTable(jl.Symbol("single"), jl.concretize({"species": ["sp1", "sp2"], "userparam": np.array([2, 10])})) #TODO avoid jl.Symbol?
     param_user3 = cl.getparams(["sp1", "sp2"], 
                               userlocations=jl.Array[jl.String]([paramtable_file, "@REPLACE/" + csv_string]), 
                               ignore_missing_singleparams=jl.Array[jl.String](["userparam"]))
