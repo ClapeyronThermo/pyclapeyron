@@ -65,3 +65,72 @@ If you need to pass a `Clapeyron` function to another function, e.g. as in `part
 
 ## Examples
 
+- pure substance VLE
+
+```python
+import pyclapeyron as cl
+import numpy as np
+import matplotlib.pyplot as plt
+
+model = cl.PCSAFT("benzene")
+Tc, pc, vc = cl.crit_pure(model)
+
+Tx = np.linspace(0.5*Tc, Tc, 100)
+ps, vl, vv = np.zeros(100), np.zeros(100), np.zeros(100)
+for (i,Ti) in enumerate(Tx):
+    ps[i], vl[i], vv[i] = cl.saturation_pressure(model, Ti)
+
+fig, axs = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(6,3))
+axs[0].plot(1e-3/np.concat([vl,np.flip(vv)]), np.concat([ps,np.flip(ps)])/1e5, c="blue")
+axs[1].plot(Tx, ps/1e5, c="red")
+axs[0].scatter(1e-3/vc, pc/1e5, marker="*", c="blue")
+axs[1].scatter(Tc, pc/1e5, marker="*", c="red")
+axs[0].set_yscale("log")
+axs[0].set_xlabel("ϱ / mol l⁻¹")
+axs[1].set_xlabel("T / K")
+axs[0].set_ylabel("p / bar")
+plt.tight_layout()
+```
+<p align="center">
+    <img src="docs/pure_vle.svg" width="900">
+</p>
+
+- mixture VLE
+
+```python
+import pyclapeyron as cl
+import numpy as np
+import matplotlib.pyplot as plt
+
+antoine_pars = dict(        # calculated by the GRAPPA model (see https://ml-prop.mv.rptu.de/)
+    A   = np.array([14.451,14.529])/np.log(10)-np.log10(101.325/760),
+    B   = np.array([2516.535,3084.907])/np.log(10), 
+    C   = np.array([-38.168,-42.557])+273.15,
+    Tc  = np.array([461.,545.]),
+    Pc  = np.array([64e5,48.7e5]), 
+    Tmin= np.array([200.,200.]),
+    Tmax= np.array([450.,450.])
+)
+sat = cl.AntoineEqSat(["acetaldehyde", "acetonitrile"], userlocations=antoine_pars)
+model = cl.UNIFAC2(
+    [("acetaldehyde", {"CH3": 1, "HCO": 1}), ("acetonitrile", {"CH3CN": 1}),], puremodel=sat
+)
+
+T_iso = 300.
+x1 = np.linspace(0.,1.,100)
+ps, y1 = np.zeros(100), np.zeros(100)
+for (i,x1i) in enumerate(x1):
+    ps[i], _, _, yi = cl.bubble_pressure(model, T_iso, np.array([x1i,1-x1i]))
+    y1[i] = yi[0]
+
+fig, ax = plt.subplots(figsize=(4,3))
+ax.plot(x1, ps/1e5, c="blue")
+ax.plot(y1, ps/1e5, c="blue")
+ax.set_xlim((0,1))
+ax.set_xlabel("x₁ / mol l⁻¹")
+ax.set_ylabel("p / bar")
+plt.tight_layout()
+```
+<p align="center">
+    <img src="docs/mix_vle.svg" width="600">
+</p>
