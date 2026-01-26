@@ -7,10 +7,10 @@ name = "pyclapeyron"
 version = "0.1.0"
 description = "Python bindings for the Julia package Clapeyron.jl"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "juliacall>=0.9",
-    "numpy>=2"
+    "numpy>=2",
 ]
 authors = [
   { name = "Hon Wa Yew", email = "yewhonwa@gmail.com" },
@@ -25,3 +25,8 @@ include = ["pyclapeyron*"]
 
 [tool.setuptools.package-data]
 pyclapeyron = ["juliapkg.json"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]

@@ -27,8 +27,13 @@ Manifest*.toml
 LocalPreferences.toml
 JuliaLocalPreferences.toml
 
-dist
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
 .venv
-*egg-info
-__pycache__
-scripts_local
