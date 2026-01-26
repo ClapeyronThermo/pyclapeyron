@@ -2,7 +2,6 @@ import pytest
 from pytest import approx
 import pyclapeyron as cl
 import numpy as np
-from juliacall import Main as jl
 import os
 
 def test_cubic():
@@ -55,15 +54,15 @@ def test_saft_pc():
         "k": np.zeros((1, 1)),
         "n_H": np.array([1]),
         "n_e": np.array([1]),
-        "epsilon_assoc": jl.concretize({(("a1", "e"), ("a1", "H")): 1000.}),
-        "bondvol": jl.concretize({(("a1", "e"), ("a1", "H")): 0.001})
+        "epsilon_assoc": {(("a1", "e"), ("a1", "H")): 1000.},
+        "bondvol": {(("a1", "e"), ("a1", "H")): 0.001}
     })
     cl.PCPSAFT(["acetone", "butane", "DMSO"])
     cl.PCPSAFT(["acetone", "water", "DMSO"])
     cl.QPCPSAFT(["carbon dioxide", "acetone", "hydrogen sulfide"])
     cl.QPCPSAFT(["carbon dioxide", "chlorine", "carbon disulfide"])
-    cl.gcPCPSAFT(["acetone", "ethane", "ethanol"], mixing=jl.Symbol("homo"))
-    cl.gcPCPSAFT(["acetone", "ethane", "ethanol"], mixing=jl.Symbol("hetero"))
+    cl.gcPCPSAFT(["acetone", "ethane", "ethanol"], mixing="homo")
+    cl.gcPCPSAFT(["acetone", "ethane", "ethanol"], mixing="hetero")
     cl.sPCSAFT(["propane", "methanol"])
     cl.sPCSAFT(["water", "ethanol"])
     cl.gcsPCSAFT(["acetone", "ethane"])

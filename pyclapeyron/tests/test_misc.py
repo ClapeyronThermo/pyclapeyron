@@ -18,8 +18,8 @@ def test_params():
     filepath_gc = [csv_path + "/test_csvs/group_test.csv"]
     
     # getparams
-    params = cl.getparams(testspecies, userlocations=jl.Array[jl.String](filepath_normal),
-                         ignore_missing_singleparams=jl.Array[jl.String](["emptyparam","missingparam"]), 
+    params = cl.getparams(testspecies, userlocations=filepath_normal,
+                         ignore_missing_singleparams=["emptyparam","missingparam"], 
                          verbose=True)
     
     assert jl.isa(params["intparam"], cl.Clapeyron.SingleParam)
