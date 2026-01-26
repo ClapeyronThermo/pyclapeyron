@@ -35,7 +35,3 @@ def create_wrapper(julia_func):
     wrapper.__doc__ = f"Python wrapper for Julia's `{wrapper.__name__}` function."
     
     return wrapper
-
-# Helper functions to "concretize" a dict on the Julia side
-jl.seval("concretize(d::AbstractDict) = Dict(k => v for (k,v) in d)")
-jl.seval("concretize(d) = d")
