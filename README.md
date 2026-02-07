@@ -1,4 +1,12 @@
-# pyclapeyron
+[![Build Status](https://github.com/ClapeyronThermo/pyclapeyron/workflows/CI/badge.svg)](https://github.com/ClapeyronThermo/pyclapeyron/actions)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://clapeyronthermo.github.io/Clapeyron.jl/dev)
+[![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/265161-Clapeyron.2Ejl)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/pyClapeyron_logo_dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/pyClapeyron_logo_light.svg">
+  <img src="docs/pyClapeyron_logo_light.svg">
+</picture>
 
 Python wrapper for [Clapeyron.jl](https://clapeyronthermo.github.io/Clapeyron.jl/).
 
