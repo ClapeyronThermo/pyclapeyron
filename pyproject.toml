@@ -13,10 +13,10 @@ dependencies = [
     "numpy>=2",
 ]
 authors = [
+  { name = "Sebastian Schmitt", email = "se.s.schmitt@gmail.com" },
   { name = "Hon Wa Yew", email = "yewhonwa@gmail.com" },
   { name = "Pierre Walker", email = "pjwalker@caltech.edu" },
   { name = "Andrés Riedemann", email = "andres.riedemann@gmail.com" },
-  { name = "Sebastian Schmitt", email = "se.s.schmitt@gmail.com" }
 ]
 
 [tool.setuptools.packages.find]
