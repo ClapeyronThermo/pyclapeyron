@@ -1,7 +1,7 @@
 [![Build Status](https://github.com/ClapeyronThermo/pyclapeyron/workflows/CI/badge.svg)](https://github.com/ClapeyronThermo/pyclapeyron/actions)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://clapeyronthermo.github.io/Clapeyron.jl/dev)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/265161-Clapeyron.2Ejl)
-![PyPI - Version](https://img.shields.io/pypi/v/pyclapeyron)
+[![PyPI - Version](https://img.shields.io/pypi/v/pyclapeyron)](https://pypi.org/project/pyclapeyron/)
 
 <p>
   <picture>
