@@ -5,9 +5,9 @@
 
 <p>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/pyClapeyron_logo_dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/pyClapeyron_logo_light.svg">
-    <img src="docs/pyClapeyron_logo_light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ClapeyronThermo/pyclapeyron/master/docs/pyClapeyron_logo_dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ClapeyronThermo/pyclapeyron/master/docs/pyClapeyron_logo_light.svg">
+    <img src="https://raw.githubusercontent.com/ClapeyronThermo/pyclapeyron/master/docs/pyClapeyron_logo_light.svg">
   </picture>
 </p>
 
